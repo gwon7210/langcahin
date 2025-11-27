@@ -80,14 +80,17 @@ def init_page():
 
 
 def select_model():
-    models = ("GPT-4", "Claude 3.5 Sonnet", "Gemini 1.5 Pro", "GPT-3.5 (not recommended)")
+    models = ("GPT-4", "GPT-5.1", "GPT-5 mini", "Claude 3.5 Sonnet", "Gemini 1.5 Pro")
     model = st.sidebar.radio("Choose a model:", models)
-    if model == "GPT-3.5 (not recommended)":
-        return ChatOpenAI(
-            temperature=0, model_name="gpt-3.5-turbo")
-    elif model == "GPT-4":
+    if model == "GPT-4":
         return ChatOpenAI(
             temperature=0, model_name="gpt-4o")
+    elif model == "GPT-5.1":
+        return ChatOpenAI(
+            temperature=0, model_name="gpt-5.1")
+    elif model == "GPT-5 mini":
+        return ChatOpenAI(
+            temperature=0, model_name="gpt-5-mini")
     elif model == "Claude 3.5 Sonnet":
         return ChatAnthropic(
             temperature=0, model_name="claude-3-5-sonnet-20240620")

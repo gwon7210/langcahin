@@ -179,12 +179,15 @@ class CodeInterpreterClient:
                 for content in message.data[0].content:
                     if content.type == "text":
                         text_content = content.text.value
-                        file_ids.extend([
-                            annotation.file_path.file_id
-                            for annotation in content.text.annotations
-                        ])
+                        for annotation in content.text.annotations:
+                            file_path = getattr(annotation, "file_path", None)
+                            file_id = getattr(file_path, "file_id", None)
+                            if file_id:
+                                file_ids.append(file_id)
                     elif content.type == "image_file":
-                        file_ids.append(content.image_file.file_id)
+                        image_file_id = getattr(content.image_file, "file_id", None)
+                        if image_file_id:
+                            file_ids.append(image_file_id)
                     else:
                         raise ValueError("Unknown content type")
             except:
@@ -196,6 +199,8 @@ class CodeInterpreterClient:
         file_names = []
         if file_ids:
             for file_id in file_ids:
+                if not file_id:
+                    continue
                 file_names.append(self._download_file(file_id))
 
         return text_content, file_names
