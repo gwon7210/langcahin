@@ -29,4 +29,9 @@ def code_interpreter_tool(code):
     - files: Code Interpreter가 저장한 파일의 경로
         - 파일은 `./files/` 아래에 저장됩니다.
     """
+    # 단순 로그 출력
+    print("\n\n=== Executing Code ===")
+    print(code)
+    print("=====================\n\n")
+    
     return st.session_state.code_interpreter_client.run(code)
