@@ -2,8 +2,8 @@
 
 import re
 import streamlit as st
-from langchain.agents import create_tool_calling_agent, AgentExecutor
-from langchain.memory import ConversationBufferWindowMemory
+from langchain_classic.agents import create_tool_calling_agent, AgentExecutor
+from langchain_classic.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
 from langchain_core.runnables import RunnableConfig
 from langchain_community.callbacks import StreamlitCallbackHandler
@@ -54,7 +54,7 @@ def init_page():
             k=10
         )
         st.session_state.custom_system_prompt = load_system_prompt(
-            "./prompt/system_prompt.txt")
+            "./chapter_011/part2/prompt/system_prompt.txt")
         st.session_state.uploaded_files = []
 
 

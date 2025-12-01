@@ -6,7 +6,7 @@ from typing import Optional
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from langchain_core.tools import Tool, StructuredTool
-from langchain_core.pydantic_v1 import (BaseModel, Field)
+from pydantic import BaseModel, Field
 from src.code_interpreter import CodeInterpreterClient
 
 
