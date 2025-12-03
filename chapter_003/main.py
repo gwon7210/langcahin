@@ -53,7 +53,7 @@ def init_messages():
 
 def select_model():
     temperature = st.sidebar.slider(
-        "Temperature:", min_value=0.0, max_value=2.0, value=0.0, step=0.01)
+        "Temperature:", min_value=0.0, max_value=2.0, value=0.0, step=0.1)
 
     models = ("GPT-3.5", "GPT-4", "Claude 3.5 Sonnet", "Gemini 1.5 Pro")
     model = st.sidebar.radio("Choose a model:", models)
