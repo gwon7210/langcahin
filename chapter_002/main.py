@@ -1,4 +1,3 @@
-# Github: https://github.com/naotaka1128/llm_app_codes/chapter02/main.py
 import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
