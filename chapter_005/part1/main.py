@@ -17,10 +17,15 @@ from urllib.parse import urlparse
 ###### dotenv를 사용하지 않는 경우 삭제하세요 ######
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     import warnings
-    warnings.warn("dotenv not found. Please make sure to set your environment variables manually.", ImportWarning)
+
+    warnings.warn(
+        "dotenv not found. Please make sure to set your environment variables manually.",
+        ImportWarning,
+    )
 ################################################
 
 
@@ -37,51 +42,40 @@ SUMMARIZE_PROMPT = """다음 콘텐츠의 내용을 약 300자 정도로 알기 
 
 
 def init_page():
-    st.set_page_config(
-        page_title="웹사이트 요약기",
-        page_icon="🤗"
-    )
+    st.set_page_config(page_title="웹사이트 요약기", page_icon="🤗")
     st.header("웹사이트 요약기 🤗")
     st.sidebar.title("Options")
 
 
 def select_model(temperature=0):
-    models = ("GPT-3.5", "GPT-4", "Claude 3.5 Sonnet", "Gemini 1.5 Pro")
+    models = ("GPT-5 mini", "GPT-5.1", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
     model = st.sidebar.radio("Choose a model:", models)
-    if model == "GPT-3.5":
-        return ChatOpenAI(
-            temperature=temperature,
-            model="gpt-3.5-turbo"
-        )
-    elif model == "GPT-4":
-        return ChatOpenAI(
-            temperature=temperature,
-            model="gpt-4o"
-        )
-    elif model == "Claude 3.5 Sonnet":
+    if model == "GPT-5 mini":
+        return ChatOpenAI(temperature=temperature, model="gpt-5-mini")
+    elif model == "GPT-5.1":
+        return ChatOpenAI(temperature=temperature, model="gpt-5.1")
+    elif model == "Claude Sonnet 4.5":
         return ChatAnthropic(
-            temperature=temperature,
-            model="claude-3-5-sonnet-20240620"
+            temperature=temperature, model="claude-sonnet-4-5-20250929"
         )
-    elif model == "Gemini 1.5 Pro":
-        return ChatGoogleGenerativeAI(
-            temperature=temperature,
-            model="gemini-1.5-pro-latest"
-        )
+    elif model == "Gemini 2.5 Flash":
+        return ChatGoogleGenerativeAI(temperature=temperature, model="gemini-2.5-flash")
 
 
 def init_chain():
     llm = select_model()
-    prompt = ChatPromptTemplate.from_messages([
-        ("user", SUMMARIZE_PROMPT),
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("user", SUMMARIZE_PROMPT),
+        ]
+    )
     output_parser = StrOutputParser()
     chain = prompt | llm | output_parser
     return chain
 
 
 def validate_url(url):
-    """ URL이 유효한지 판단하는 함수 """
+    """URL이 유효한지 판단하는 함수"""
     try:
         result = urlparse(url)
         return all([result.scheme, result.netloc])
@@ -93,8 +87,8 @@ def get_content(url):
     try:
         with st.spinner("Fetching Website ..."):
             response = requests.get(url)
-            soup = BeautifulSoup(response.text, 'html.parser')
-            # 가능한 한 본문일 가능성이 높은 요소를 가져온다
+            soup = BeautifulSoup(response.text, "html.parser")
+            # 본문일 가능성이 높은 요소를 가져온다
             if soup.main:
                 return soup.main.get_text()
             elif soup.article:
@@ -102,7 +96,7 @@ def get_content(url):
             else:
                 return soup.body.get_text()
     except:
-        st.write(traceback.format_exc())  # 에러가 발생한 경우 에러 내용을 표시
+        st.write(traceback.format_exc())  # 오류가 발생하면 오류 내용을 표시
         return None
 
 
@@ -114,7 +108,7 @@ def main():
     if url := st.text_input("URL: ", key="input"):
         is_valid_url = validate_url(url)
         if not is_valid_url:
-            st.write('Please input valid url')
+            st.write("Please input valid url")
         else:
             if content := get_content(url):
                 st.markdown("## Summary")
@@ -127,5 +121,5 @@ def main():
     # calc_and_display_costs()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

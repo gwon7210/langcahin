@@ -47,3 +47,15 @@ langsmith==0.4.45
 python-magic==0.4.27
 google-cloud-bigquery==3.38.0
 db-dtypes==1.4.4
+
+
+
+
+# 웹사이트 요약 용
+5.1 pip install requests==2.32.5
+pip install beautifulsoup4==4.14.2
+pip install langchain_text_splitters==0.0.1
+
+# 유튜브 요약 용
+pip install youtube-transcript-api==0.6.2
+pip install pytube==15.0.0
