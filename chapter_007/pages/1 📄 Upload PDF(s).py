@@ -8,18 +8,20 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 # dotenv를 사용하지 않는 경우는 삭제하세요
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     import warnings
-    warnings.warn("dotenv not found. Please make sure to set your environment variables manually.", ImportWarning)
+
+    warnings.warn(
+        "dotenv not found. Please make sure to set your environment variables manually.",
+        ImportWarning,
+    )
 ################################################
 
 
 def init_page():
-    st.set_page_config(
-        page_title="Upload PDF(s)",
-        page_icon="📄"
-    )
+    st.set_page_config(page_title="Upload PDF(s)", page_icon="📄")
     st.sidebar.title("옵션")
 
 
@@ -33,8 +35,7 @@ def get_pdf_text():
     # file_uploader로 PDF를 업로드한다
     # (file_uploader에 대한 자세한 설명은 6장을 참고하세요)
     pdf_file = st.file_uploader(
-        label='PDF를 업로드하세요 😇',
-        type='pdf'  # PDF 파일만 업로드 가능
+        label="PDF를 업로드하세요 😇", type="pdf"  # PDF 파일만 업로드 가능
     )
     if pdf_file:
         pdf_text = ""
@@ -62,14 +63,13 @@ def get_pdf_text():
 
 def build_vector_store(pdf_text):
     with st.spinner("벡터 스토어 저장 중 ..."):
-        if 'vectorstore' in st.session_state:
+        if "vectorstore" in st.session_state:
             st.session_state.vectorstore.add_texts(pdf_text)
         else:
             # 벡터 DB 초기화와 문서 추가를 동시에 수행
             # LangChain의 Document Loader를 사용할 경우 `from_documents` 사용
             st.session_state.vectorstore = FAISS.from_texts(
-                pdf_text,
-                OpenAIEmbeddings(model="text-embedding-3-small")
+                pdf_text, OpenAIEmbeddings(model="text-embedding-3-small")
             )
 
             # FAISS 기본 설정은 L2 거리
@@ -94,7 +94,7 @@ def main():
     page_pdf_upload_and_build_vector_db()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

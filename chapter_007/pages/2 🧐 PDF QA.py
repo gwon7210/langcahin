@@ -12,64 +12,58 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 # dotenv를 사용하지 않는 경우는 삭제하세요
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     import warnings
-    warnings.warn("dotenv not found. Please make sure to set your environment variables manually.", ImportWarning)
+
+    warnings.warn(
+        "dotenv not found. Please make sure to set your environment variables manually.",
+        ImportWarning,
+    )
 ################################################
 
 
 def init_page():
-    st.set_page_config(
-        page_title="Ask My PDF(s)",
-        page_icon="🧐"
-    )
+    st.set_page_config(page_title="Ask My PDF(s)", page_icon="🧐")
     st.sidebar.title("옵션")
 
 
 def select_model(temperature=0):
-    models = ("GPT-3.5", "GPT-4", "Claude 3.5 Sonnet", "Gemini 1.5 Pro")
-    model = st.sidebar.radio("모델을 선택하세요:", models)
-    if model == "GPT-3.5":
-        return ChatOpenAI(
-            temperature=temperature,
-            model_name="gpt-3.5-turbo"
-        )
-    elif model == "GPT-4":
-        return ChatOpenAI(
-            temperature=temperature,
-            model_name="gpt-4o"
-        )
-    elif model == "Claude 3.5 Sonnet":
+    models = ("GPT-5 mini", "GPT-5.1", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
+    model = st.sidebar.radio("Choose a model:", models)
+    if model == "GPT-5 mini":
+        return ChatOpenAI(temperature=temperature, model="gpt-5-mini")
+    elif model == "GPT-5.1":
+        return ChatOpenAI(temperature=temperature, model="gpt-5.1")
+    elif model == "Claude Sonnet 4.5":
         return ChatAnthropic(
-            temperature=temperature,
-            model_name="claude-3-5-sonnet-20240620"
+            temperature=temperature, model="claude-sonnet-4-5-20250929"
         )
-    elif model == "Gemini 1.5 Pro":
-        return ChatGoogleGenerativeAI(
-            temperature=temperature,
-            model="gemini-1.5-pro-latest"
-        )
+    elif model == "Gemini 2.5 Flash":
+        return ChatGoogleGenerativeAI(temperature=temperature, model="gemini-2.5-flash")
 
 
 def init_qa_chain():
     llm = select_model()
-    prompt = ChatPromptTemplate.from_template("""
-    아래의 전제 지식을 바탕으로 사용자 질문에 답변해 주세요.
+    prompt = ChatPromptTemplate.from_template(
+        """
+    다음 배경 지식을 사용해서 사용자 질문에 답변해 주세요.
 
     ===
-    전제 지식
+    배경 지식
     {context}
 
     ===
     사용자 질문
     {question}
-    """)
+    """
+    )
     retriever = st.session_state.vectorstore.as_retriever(
         # "mmr", "similarity_score_threshold" 등도 사용 가능
         search_type="similarity",
-        # 몇 개의 문서를 가져올지 (기본값: 4)
-        search_kwargs={"k": 10}
+        # 몇 개의 문서를 가져올지 설정(기본값: 4)
+        search_kwargs={"k": 10},
     )
     chain = (
         {"context": retriever, "question": RunnablePassthrough()}
@@ -97,5 +91,5 @@ def main():
         page_ask_my_pdf()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
