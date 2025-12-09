@@ -18,10 +18,15 @@ from tools.fetch_page import fetch_page
 ###### dotenv를 사용하지 않는 경우는 삭제하세요 ######
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     import warnings
-    warnings.warn("dotenv not found. Please make sure to set your environment variables manually.", ImportWarning)
+
+    warnings.warn(
+        "dotenv not found. Please make sure to set your environment variables manually.",
+        ImportWarning,
+    )
 ################################################
 
 
@@ -60,10 +65,7 @@ CUSTOM_SYSTEM_PROMPT = """
 
 
 def init_page():
-    st.set_page_config(
-        page_title="Web Browsing Agent",
-        page_icon="🤗"
-    )
+    st.set_page_config(page_title="Web Browsing Agent", page_icon="🤗")
     st.header("Web Browsing Agent 🤗")
     st.sidebar.title("Options")
 
@@ -74,10 +76,8 @@ def init_messages():
         st.session_state.messages = [
             {"role": "assistant", "content": "안녕하세요! 무엇이든 질문해주세요!"}
         ]
-        st.session_state['memory'] = ConversationBufferWindowMemory(
-            return_messages=True,
-            memory_key="chat_history",
-            k=10
+        st.session_state["memory"] = ConversationBufferWindowMemory(
+            return_messages=True, memory_key="chat_history", k=10
         )
         # 아래와 같이도 작성할 수 있습니다
         # from langchain_community.chat_message_histories import StreamlitChatMessageHistory
@@ -86,37 +86,30 @@ def init_messages():
 
 
 def select_model():
-    models = ("GPT-4", "Claude 3.5 Sonnet", "Gemini 1.5 Pro", "GPT-3.5 (not recommended)")
+    models = ("GPT-5.1", "Claude Sonnet 4.5", "Gemini 2.5 Flash")
     model = st.sidebar.radio("Choose a model:", models)
-    if model == "GPT-3.5 (not recommended)":
-        return ChatOpenAI(
-            temperature=0, model_name="gpt-3.5-turbo")
-    elif model == "GPT-4":
-        return ChatOpenAI(
-            temperature=0, model_name="gpt-4o")
-    elif model == "Claude 3.5 Sonnet":
-        return ChatAnthropic(
-            temperature=0, model_name="claude-3-5-sonnet-20240620")
-    elif model == "Gemini 1.5 Pro":
-        return ChatGoogleGenerativeAI(
-            temperature=0, model="gemini-1.5-pro-latest")
+    if model == "GPT-5.1":
+        return ChatOpenAI(temperature=0, model="gpt-5.1")
+    elif model == "Claude Sonnet 4.5":
+        return ChatAnthropic(temperature=0, model="claude-sonnet-4-5-20250929")
+    elif model == "Gemini 2.5 Flash":
+        return ChatGoogleGenerativeAI(temperature=0, model="gemini-2.5-flash")
 
 
 def create_agent():
     tools = [search_ddg, fetch_page]
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", CUSTOM_SYSTEM_PROMPT),
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("user", "{input}"),
-        MessagesPlaceholder(variable_name="agent_scratchpad")
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", CUSTOM_SYSTEM_PROMPT),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("user", "{input}"),
+            MessagesPlaceholder(variable_name="agent_scratchpad"),
+        ]
+    )
     llm = select_model()
     agent = create_tool_calling_agent(llm, tools, prompt)
     return AgentExecutor(
-        agent=agent,
-        tools=tools,
-        verbose=True,
-        memory=st.session_state['memory']
+        agent=agent, tools=tools, verbose=True, memory=st.session_state["memory"]
     )
 
 
@@ -125,24 +118,22 @@ def main():
     init_messages()
     web_browsing_agent = create_agent()
 
-    for msg in st.session_state['memory'].chat_memory.messages:
+    for msg in st.session_state["memory"].chat_memory.messages:
         st.chat_message(msg.type).write(msg.content)
 
-    if prompt := st.chat_input(placeholder="2023 FIFA 여자 월드컵 우승 국가는?"):
+    if prompt := st.chat_input(placeholder="2025 한국시리즈 우승팀?"):
         st.chat_message("user").write(prompt)
 
         with st.chat_message("assistant"):
             # 콜백 함수 설정 (에이전트 동작 시각화용)
-            st_cb = StreamlitCallbackHandler(
-                st.container(), expand_new_thoughts=True)
+            st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=True)
 
             # 에이전트 실행
             response = web_browsing_agent.invoke(
-                {'input': prompt},
-                config=RunnableConfig({'callbacks': [st_cb]})
+                {"input": prompt}, config=RunnableConfig({"callbacks": [st_cb]})
             )
             st.write(response["output"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

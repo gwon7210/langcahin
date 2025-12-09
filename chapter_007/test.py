@@ -1,31 +1,18 @@
-아래 배경 지식을 사용해서 사용자의 질문에 대답해주세요
+from langchain.tools import tool  # ★ 경로 최신화
+from langchain_openai import ChatOpenAI
+from langchain.output_parsers import JsonOutputToolsParser
 
-===
+llm = ChatOpenAI(model="gpt-4o-mini")  # ★ 최신 모델 추천
 
-배경 지식 - 1
-{context_a}
 
-===
+@tool
+def get_word_length(word: str) -> int:
+    """Returns the length of a word."""
+    return len(word)
 
-배경 지식 - 2
-{context_b}
 
-===
-사용자의 질문
-{question}
-"""
-)
+llm_with_tools = llm.bind_tools([get_word_length])
+chain = llm_with_tools | JsonOutputToolsParser()
 
-chain = (
-    {
-        "context_a": itemgetter("keyword") | retriever_a,
-        "context_b": itemgetter("keyword") | retriever_b,
-        "question": itemgetter("question"),
-    }
-    | prompt
-)
-
-chain.invoke({
-    "keyword": "해외 사업 상황",
-    "question": "이 두 기업의 결산 자료를 비교해주세요"
-})
+res = chain.invoke("abafeafafa는 몇글자야?")
+print(res)

@@ -4,7 +4,6 @@ import requests
 import html2text
 from readability import Document
 from langchain_core.tools import tool
-# from langchain_core.pydantic_v1 import (BaseModel, Field)
 from pydantic import BaseModel, Field
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -40,19 +39,23 @@ def fetch_page(url, page_num=0, timeout_sec=10):
     """
     try:
         response = requests.get(url, timeout=timeout_sec)
-        response.encoding = 'utf-8'
+        response.encoding = "utf-8"
     except requests.exceptions.Timeout:
         return {
             "status": 500,
-            "page_content": {'error_message': 'Timeout Error로 인해 페이지를 다운로드할 수 없습니다. 다른 페이지를 가져와 보세요.'}
+            "page_content": {
+                "error_message": "Timeout Error로 인해 페이지를 다운로드할 수 없습니다. 다른 페이지를 가져와 보세요."
+            },
         }
 
     if response.status_code != 200:
         return {
             "status": response.status_code,
-            "page_content": {'error_message': '페이지를 다운로드할 수 없습니다. 다른 페이지를 가져와 보세요.'}
+            "page_content": {
+                "error_message": "페이지를 다운로드할 수 없습니다. 다른 페이지를 가져와 보세요."
+            },
         }
-    
+
     try:
         doc = Document(response.text)
         title = doc.title()
@@ -61,11 +64,13 @@ def fetch_page(url, page_num=0, timeout_sec=10):
     except:
         return {
             "status": 500,
-            "page_content": {'error_message': '페이지를 파싱할 수 없습니다. 다른 페이지를 가져와 보세요.'}
+            "page_content": {
+                "error_message": "페이지를 파싱할 수 없습니다. 다른 페이지를 가져와 보세요."
+            },
         }
 
     text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-        model_name='gpt-3.5-turbo',
+        model_name="gpt-3.5-turbo",
         chunk_size=1000,
         chunk_overlap=0,
     )
@@ -73,12 +78,16 @@ def fetch_page(url, page_num=0, timeout_sec=10):
     if page_num >= len(chunks):
         return {
             "status": 500,
-            "page_content": {'error_message': 'page_num 파라미터가 잘못된 것 같습니다. 다른 페이지를 가져와 보세요.'}
+            "page_content": {
+                "error_message": "page_num 파라미터가 잘못된 것 같습니다. 다른 페이지를 가져와 보세요."
+            },
         }
     elif page_num >= 3:
         return {
             "status": 503,
-            "page_content": {'error_message': "더 많은 page_num 콘텐츠를 읽으면 메모리가 과부하됩니다. 현재까지 확보한 정보만으로 답변을 작성해주세요."}
+            "page_content": {
+                "error_message": "더 많은 page_num 콘텐츠를 읽으면 메모리가 과부하됩니다. 현재까지 확보한 정보만으로 답변을 작성해주세요."
+            },
         }
     else:
         return {
@@ -86,6 +95,6 @@ def fetch_page(url, page_num=0, timeout_sec=10):
             "page_content": {
                 "title": title,
                 "content": chunks[page_num],
-                "has_next": page_num < len(chunks) - 1
-            }
+                "has_next": page_num < len(chunks) - 1,
+            },
         }
